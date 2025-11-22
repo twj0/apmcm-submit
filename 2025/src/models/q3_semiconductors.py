@@ -1005,6 +1005,71 @@ class SemiconductorModel:
         logger.info("ML comparison report generated")
 
 
+def save_q3_model_comparison(econometric_results: Dict, ml_trade_results: Dict) -> None:
+    """Persist side-by-side comparison of OLS vs Random Forest trade models by segment."""
+    output_dir = RESULTS_DIR / 'q3'
+    output_dir.mkdir(parents=True, exist_ok=True)
+    comparison_path = output_dir / 'q3_forecast_comparison.md'
+    json_path = output_dir / 'q3_forecast_comparison.json'
+
+    lines = [
+        '# Q3 Trade Model Comparison',
+        '',
+        'Econometric segment-level OLS vs Random Forest ML trade prediction.',
+        '',
+        '| Segment | Model | R² | RMSE | N_obs |',
+        '|---------|-------|----|------|-------|',
+    ]
+
+    def _fmt(value: Any) -> str:
+        try:
+            v = float(value)
+        except (TypeError, ValueError):
+            return '-'
+        if np.isnan(v):
+            return '-'
+        return f"{v:.3f}"
+
+    segments = set()
+    if isinstance(econometric_results, dict):
+        segments.update(econometric_results.keys())
+    if isinstance(ml_trade_results, dict):
+        segments.update(ml_trade_results.keys())
+
+    for seg in sorted(segments):
+        econ = econometric_results.get(seg, {}) if isinstance(econometric_results, dict) else {}
+        ml = ml_trade_results.get(seg, {}) if isinstance(ml_trade_results, dict) else {}
+
+        if econ:
+            lines.append(
+                "| {seg} | Econometric (OLS) | {r2} | - | {nobs} |".format(
+                    seg=seg,
+                    r2=_fmt(econ.get('rsquared')),
+                    nobs=str(econ.get('nobs')) if econ.get('nobs') is not None else '-',
+                )
+            )
+        if ml:
+            lines.append(
+                "| {seg} | Random Forest | {r2} | {rmse} | - |".format(
+                    seg=seg,
+                    r2=_fmt(ml.get('r2_score')),
+                    rmse=_fmt(ml.get('rmse')),
+                )
+            )
+
+    if len(lines) == 6:  # only header, no data rows
+        lines.append('| - | - | - | - | - |')
+
+    comparison_path.write_text('\n'.join(lines), encoding='utf-8')
+
+    payload = {
+        'econometric_trade_response': econometric_results or {},
+        'ml_trade_prediction': ml_trade_results or {},
+    }
+    with open(json_path, 'w', encoding='utf-8') as f:
+        json.dump(payload, f, indent=2)
+
+
 def run_q3_analysis() -> None:
     """Run complete Q3 analysis pipeline with triple methodology."""
     logger.info("="*60)
@@ -1039,8 +1104,8 @@ def run_q3_analysis() -> None:
 
     # Step 6: ML enhancements (NEW)
     logger.info("\n[ML ANALYSIS]")
-    ml_trade_results = {}
-    ml_risk_results = {}
+    ml_trade_results: Dict = {}
+    ml_risk_results: Dict = {}
     if trade_data is not None and not trade_data.empty:
         ml_trade_results = model.run_ml_trade_prediction(trade_data)
         if security_metrics is not None and not security_metrics.empty:
@@ -1055,6 +1120,12 @@ def run_q3_analysis() -> None:
 
     # Step 7: Plot results
     model.plot_q3_results()
+
+    # Step 8: Save concise OLS vs ML trade comparison
+    try:
+        save_q3_model_comparison(econometric_results or {}, ml_trade_results or {})
+    except Exception as exc:
+        logger.exception("Failed to save Q3 model comparison: %s", exc)
 
     logger.info("\nQ3 analysis complete")
     logger.info(f"Econometric results: {model.results_econometric}")

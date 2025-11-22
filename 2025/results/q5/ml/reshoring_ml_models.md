@@ -4,55 +4,55 @@
 {
   "models": {
     "random_forest": {
-      "rmse": 0.4472466670482285,
-      "mae": 0.4363818367956398,
-      "r2": -1.1951757639536273
+      "rmse": 0.8903463021612373,
+      "mae": 0.7288548892439195,
+      "r2": -7.699473953239055
     },
     "gradient_boosting": {
-      "rmse": 0.3237026954211205,
-      "mae": 0.23861977988380811,
-      "r2": -0.1499202051144648
+      "rmse": 0.7566517341374105,
+      "mae": 0.5355769113543829,
+      "r2": -5.28300111873619
     }
   },
   "feature_importance": {
     "random_forest": {
-      "sp500_index": 0.27665889184433506,
-      "tariff_index_total": 0.45263916667940723,
-      "tariff_retaliation_interaction": 0.2707019414762577
+      "sp500_index": 0.1258457573798114,
+      "tariff_index_total_lag1": 0.21471746048879367,
+      "dollar_index": 0.659436782131395
     },
     "gradient_boosting": {
-      "sp500_index": 0.4343707833423996,
-      "tariff_index_total": 0.2570664453827458,
-      "tariff_retaliation_interaction": 0.3085627712748547
+      "sp500_index": 0.16323754146639322,
+      "tariff_index_total_lag1": 0.13692287344993684,
+      "dollar_index": 0.6998395850836701
     }
   },
   "top_features": {
     "random_forest": [
       {
-        "feature": "tariff_index_total",
-        "importance": 0.45263916667940723
+        "feature": "dollar_index",
+        "importance": 0.659436782131395
+      },
+      {
+        "feature": "tariff_index_total_lag1",
+        "importance": 0.21471746048879367
       },
       {
         "feature": "sp500_index",
-        "importance": 0.27665889184433506
-      },
-      {
-        "feature": "tariff_retaliation_interaction",
-        "importance": 0.2707019414762577
+        "importance": 0.1258457573798114
       }
     ],
     "gradient_boosting": [
       {
+        "feature": "dollar_index",
+        "importance": 0.6998395850836701
+      },
+      {
         "feature": "sp500_index",
-        "importance": 0.4343707833423996
+        "importance": 0.16323754146639322
       },
       {
-        "feature": "tariff_retaliation_interaction",
-        "importance": 0.3085627712748547
-      },
-      {
-        "feature": "tariff_index_total",
-        "importance": 0.2570664453827458
+        "feature": "tariff_index_total_lag1",
+        "importance": 0.13692287344993684
       }
     ]
   }

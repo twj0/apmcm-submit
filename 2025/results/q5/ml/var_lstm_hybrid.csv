@@ -1,2 +1,2 @@
 model_type,variables,sequence_length,mse,rmse,training_samples
-VAR-LSTM Hybrid,"['tariff_index_total', 'retaliation_index', 'gdp_growth', 'industrial_production']",3,0.4502001166036813,0.67096953478059,7
+VAR-LSTM Hybrid,"['tariff_index_total', 'retaliation_index', 'gdp_growth', 'industrial_production']",3,0.5008437367492282,0.7077031416838759,7

@@ -726,6 +726,64 @@ class TariffRevenueModel:
         logger.info("Q4 plots saved")
 
 
+def save_q4_model_comparison(static_results: Dict, ml_metrics: Dict) -> None:
+    """Persist side-by-side comparison of static econometric vs ML revenue models."""
+    output_dir = RESULTS_DIR / 'q4'
+    output_dir.mkdir(parents=True, exist_ok=True)
+    comparison_path = output_dir / 'q4_model_comparison.md'
+    json_path = output_dir / 'q4_model_comparison.json'
+
+    lines = [
+        '# Q4 Revenue Model Comparison',
+        '',
+        'Static econometric Laffer model vs Gradient Boosting ML model.',
+        '',
+        '| Model | R² | RMSE | MAE | N_obs | Optimal Tariff (%) |',
+        '|-------|----|------|-----|-------|---------------------|',
+    ]
+
+    def _fmt(value: Optional[float]) -> str:
+        try:
+            v = float(value)
+        except (TypeError, ValueError):
+            return '-'
+        if np.isnan(v):
+            return '-'
+        return f"{v:.3f}"
+
+    # Econometric static model
+    if isinstance(static_results, dict) and static_results:
+        lines.append(
+            "| Static Laffer (OLS) | {r2} | - | - | {nobs} | {opt} |".format(
+                r2=_fmt(static_results.get('rsquared')),
+                nobs=str(static_results.get('nobs')) if static_results.get('nobs') is not None else '-',
+                opt=_fmt(static_results.get('optimal_tariff_pct')),
+            )
+        )
+
+    # Gradient Boosting ML model
+    if isinstance(ml_metrics, dict) and ml_metrics:
+        lines.append(
+            "| Gradient Boosting (ML) | {r2} | {rmse} | {mae} | - | - |".format(
+                r2=_fmt(ml_metrics.get('r2')),
+                rmse=_fmt(ml_metrics.get('rmse')),
+                mae=_fmt(ml_metrics.get('mae')),
+            )
+        )
+
+    if len(lines) == 6:
+        lines.append('| - | - | - | - | - | - |')
+
+    comparison_path.write_text('\n'.join(lines), encoding='utf-8')
+
+    payload = {
+        'static_laffer': static_results or {},
+        'gradient_boosting': ml_metrics or {},
+    }
+    with open(json_path, 'w', encoding='utf-8') as f:
+        json.dump(payload, f, indent=2)
+
+
 def run_q4_analysis(use_ml: bool = True) -> None:
     """Run complete Q4 analysis pipeline with ML enhancements.
 
@@ -739,7 +797,8 @@ def run_q4_analysis(use_ml: bool = True) -> None:
     logger.info("="*60)
 
     model = TariffRevenueModel()
-
+    ml_metrics: Dict = {}
+    
     # Step 1: Load data
     panel_data = model.load_q4_data()
 
@@ -759,7 +818,7 @@ def run_q4_analysis(use_ml: bool = True) -> None:
         logger.info("-"*60)
 
         # Train ML models
-        model.train_ml_models(panel_data)
+        ml_metrics = model.train_ml_models(panel_data) or {}
         model.train_arima_model(panel_data)
 
         # Load tariff scenarios for ML forecasting
@@ -782,6 +841,12 @@ def run_q4_analysis(use_ml: bool = True) -> None:
 
     # Step 6: Plot results
     model.plot_q4_results()
+
+    # Step 7: Save concise econometric vs ML comparison
+    try:
+        save_q4_model_comparison(static_results or {}, ml_metrics or {})
+    except Exception as exc:
+        logger.exception("Failed to save Q4 model comparison: %s", exc)
 
     logger.info("="*60)
     logger.info("Q4 analysis complete")

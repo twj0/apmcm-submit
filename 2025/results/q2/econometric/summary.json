@@ -1,6 +1,6 @@
 {
   "method": "econometric_ols",
-  "timestamp": "2025-11-22T14:09:09.207248",
+  "timestamp": "2025-11-22T16:47:51.550078",
   "scenarios": {
     "S0_no_response": {
       "japan_direct_import_share": 0.3,

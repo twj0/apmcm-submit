@@ -1,0 +1,9 @@
+{
+  "avg_regression_rsquared": 0.25877557735830137,
+  "num_regressions": 4,
+  "var_is_stable": false,
+  "var_lstm_rmse": 0.7077031416838759,
+  "var_lstm_training_samples": 7,
+  "reshoring_rf_r2": -7.699473953239055,
+  "reshoring_gb_r2": -5.28300111873619
+}

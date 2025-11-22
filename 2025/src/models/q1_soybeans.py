@@ -561,6 +561,73 @@ class SoybeanTradeModel:
         plt.close(fig)
         logger.info(f"Saved figures to {output_file} and {png_file}")
 
+    def evaluate_simple_forecast(self) -> Dict[str, Dict[str, float]]:
+        """Evaluate a simple lag-1 baseline forecast for soybean imports and prices."""
+        dataset = SoybeanMonthlyDataset()
+        monthly = dataset.load()
+        monthly = monthly.sort_values(['exporter', 'date']).reset_index(drop=True)
+
+        records = []
+        for exporter, grp in monthly.groupby('exporter'):
+            grp = grp.sort_values('date')
+            if len(grp) < 2:
+                continue
+            # One-step-ahead naive forecast: use previous month's value for each target
+            actual = grp[TARGET_COLUMNS].iloc[1:].copy()
+            predicted = grp[TARGET_COLUMNS].iloc[:-1].copy()
+            dates = grp['date'].iloc[1:]
+            for idx in range(len(dates)):
+                row = {
+                    'date': dates.iloc[idx],
+                    'exporter': exporter,
+                }
+                for col in TARGET_COLUMNS:
+                    row[f'{col}_actual'] = float(actual[col].iloc[idx])
+                    row[f'{col}_pred'] = float(predicted[col].iloc[idx])
+                records.append(row)
+
+        if not records:
+            logger.warning("No records available for simple forecast evaluation")
+            return {}
+
+        results_df = pd.DataFrame(records)
+        metrics: Dict[str, Dict[str, float]] = {}
+
+        def smape(a: np.ndarray, f: np.ndarray) -> float:
+            denom = (np.abs(a) + np.abs(f)) + 1e-6
+            return float(np.mean(2.0 * np.abs(f - a) / denom) * 100)
+
+        for col in TARGET_COLUMNS:
+            y_true = results_df[f'{col}_actual'].values
+            y_pred = results_df[f'{col}_pred'].values
+            err = y_pred - y_true
+            mae = float(np.mean(np.abs(err)))
+            rmse = float(math.sqrt(np.mean(err ** 2)))
+            mape = float(np.mean(np.abs(err / (y_true + 1e-6))) * 100)
+            metrics[col] = {
+                'mae': mae,
+                'rmse': rmse,
+                'mape': mape,
+                'smape': smape(y_true, y_pred),
+            }
+
+        metrics['meta'] = {
+            'baseline': 'lag-1 naive per exporter',
+            'records': int(len(results_df)),
+        }
+
+        # Persist baseline forecasts for inspection
+        output_dir = Q1_RESULTS_DIR / 'baseline'
+        output_dir.mkdir(parents=True, exist_ok=True)
+        baseline_path = output_dir / 'q1_stat_baseline_forecasts.csv'
+        results_df.to_csv(baseline_path, index=False)
+
+        metrics_path = output_dir / 'q1_stat_baseline_metrics.json'
+        with open(metrics_path, 'w', encoding='utf-8') as f:
+            json.dump(metrics, f, indent=2, default=str)
+
+        return metrics
+
 
 class SoybeanMonthlyDataset:
     """Load and align monthly soybean import data for LSTM pipeline."""
@@ -1172,6 +1239,71 @@ class SoybeanLSTMPipeline:
             logger.warning(f"Failed to save LSTM scalers: {exc}")
 
 
+def save_forecast_comparison(
+    stat_metrics: Dict[str, Dict[str, float]],
+    lstm_metrics: Dict[str, Dict[str, float]],
+) -> None:
+    """Persist side-by-side comparison of statistical vs LSTM forecasts."""
+    output_dir = Q1_RESULTS_DIR
+    output_dir.mkdir(parents=True, exist_ok=True)
+    comparison_path = output_dir / 'q1_forecast_comparison.md'
+    json_path = output_dir / 'q1_forecast_comparison.json'
+
+    lines = [
+        '# Q1 Forecast Model Comparison',
+        '',
+        'This report compares a simple statistical baseline against the LSTM model.',
+        '',
+        '## Metrics by target variable',
+        '',
+        '| Target | Model | MAE | RMSE | MAPE (%) | sMAPE (%) |',
+        '|--------|-------|-----|------|----------|-----------|',
+    ]
+
+    def _metrics_rows(name: str, metrics: Dict[str, Dict[str, float]]) -> Dict[str, Dict[str, float]]:
+        rows: Dict[str, Dict[str, float]] = {}
+        for target in TARGET_COLUMNS:
+            stats = metrics.get(target)
+            if not stats:
+                continue
+            rows[target] = {
+                'mae': float(stats.get('mae', float('nan'))),
+                'rmse': float(stats.get('rmse', float('nan'))),
+                'mape': float(stats.get('mape', float('nan'))),
+                'smape': float(stats.get('smape', float('nan'))),
+                'model': name,
+            }
+        return rows
+
+    stat_rows = _metrics_rows('Statistical (lag-1 baseline)', stat_metrics or {})
+    lstm_rows = _metrics_rows('LSTM', lstm_metrics or {})
+
+    combined_rows: Dict[str, List[Dict[str, float]]] = {}
+    for target, row in stat_rows.items():
+        combined_rows.setdefault(target, []).append(row)
+    for target, row in lstm_rows.items():
+        combined_rows.setdefault(target, []).append(row)
+
+    for target in TARGET_COLUMNS:
+        rows = combined_rows.get(target, [])
+        for row in rows:
+            lines.append(
+                f"| {target} | {row['model']} | {row['mae']:.2f} | {row['rmse']:.2f} | {row['mape']:.2f} | {row['smape']:.2f} |"
+            )
+
+    if not combined_rows:
+        lines.append("| (no metrics available) | - | - | - | - | - |")
+
+    comparison_path.write_text('\n'.join(lines), encoding='utf-8')
+
+    payload = {
+        'statistical': stat_metrics or {},
+        'lstm': lstm_metrics or {},
+    }
+    with open(json_path, 'w', encoding='utf-8') as f:
+        json.dump(payload, f, indent=2, default=str)
+
+
 def run_q1_analysis() -> None:
     """Run complete Q1 analysis pipeline."""
     logger.info("="*60)
@@ -1192,15 +1324,33 @@ def run_q1_analysis() -> None:
     
     # Step 4: Plot results
     model.plot_q1_results(results)
+
+    # Step 5: Statistical baseline forecast (traditional)
+    stat_metrics: Dict[str, Dict[str, float]] = {}
+    try:
+        stat_metrics = model.evaluate_simple_forecast()
+    except Exception as exc:  # pragma: no cover - runtime guard
+        logger.exception("Statistical baseline forecast failed: %s", exc)
+        stat_metrics = {}
     
-    # Step 5: LSTM forecasting pipeline
+    # Step 6: LSTM forecasting pipeline (deep learning)
+    lstm_metrics: Dict[str, Dict[str, float]] = {}
     try:
         lstm_pipeline = SoybeanLSTMPipeline()
-        lstm_pipeline.run()
+        lstm_result = lstm_pipeline.run()
+        if isinstance(lstm_result, dict):
+            lstm_metrics = lstm_result.get('metrics', {})
     except ImportError as exc:
         logger.warning("Skipping LSTM pipeline: %s", exc)
     except Exception as exc:  # pragma: no cover - runtime guard
         logger.exception("LSTM pipeline failed: %s", exc)
+        lstm_metrics = {}
+
+    # Step 7: Persist comparison of statistical vs deep models
+    try:
+        save_forecast_comparison(stat_metrics, lstm_metrics)
+    except Exception as exc:  # pragma: no cover - runtime guard
+        logger.exception("Failed to save forecast comparison: %s", exc)
 
     logger.info("Q1 analysis complete")
     logger.info("="*60)

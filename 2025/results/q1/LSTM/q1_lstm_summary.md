@@ -1,6 +1,6 @@
 # Q1 LSTM Forecast Summary
 
-Generated on: 2025-11-22T03:25:08.169087 UTC
+Generated on: 2025-11-22T08:33:01.858186 UTC
 
 ## Evaluation Metrics
 - **import_quantity**: MAE=1790650.25, RMSE=2522518.99, MAPE=244.32%, sMAPE=103.46%

@@ -964,6 +964,65 @@ class AutoTradeModel:
         logger.info("Q2 plots saved")
 
 
+def save_q2_model_comparison(import_results: Dict, transformer_results: Dict) -> None:
+    output_dir = RESULTS_DIR / 'q2'
+    output_dir.mkdir(parents=True, exist_ok=True)
+    comparison_path = output_dir / 'q2_forecast_comparison.md'
+    json_path = output_dir / 'q2_forecast_comparison.json'
+
+    lines = [
+        '# Q2 Model Comparison',
+        '',
+        'Econometric import structure model vs Transformer sequence model.',
+        '',
+        '| Model | R² | RMSE | MAE | N_obs | Train_samples | Test_samples |',
+        '|-------|----|------|-----|-------|---------------|--------------|',
+    ]
+
+    def _fmt(value: Any) -> str:
+        try:
+            v = float(value)
+        except (TypeError, ValueError):
+            return '-'
+        if np.isnan(v):
+            return '-'
+        return f"{v:.3f}"
+
+    ols_r2 = import_results.get('rsquared') if isinstance(import_results, dict) else None
+    ols_nobs = import_results.get('nobs') if isinstance(import_results, dict) else None
+
+    lines.append(
+        "| Econometric (OLS) | {r2} | - | - | {nobs} | - | - |".format(
+            r2=_fmt(ols_r2),
+            nobs=str(ols_nobs) if ols_nobs is not None else '-',
+        )
+    )
+
+    tf_metrics = transformer_results or {}
+    if isinstance(tf_metrics, dict) and tf_metrics:
+        lines.append(
+            "| Transformer | {r2} | {rmse} | {mae} | - | {train} | {test} |".format(
+                r2=_fmt(tf_metrics.get('r2')),
+                rmse=_fmt(tf_metrics.get('rmse')),
+                mae=_fmt(tf_metrics.get('mae')),
+                train=str(tf_metrics.get('train_samples', '-')),
+                test=str(tf_metrics.get('test_samples', '-')),
+            )
+        )
+
+    if not isinstance(import_results, dict) and not tf_metrics:
+        lines.append('| - | - | - | - | - | - | - |')
+
+    comparison_path.write_text('\n'.join(lines), encoding='utf-8')
+
+    payload = {
+        'econometric_import_structure': import_results or {},
+        'transformer': tf_metrics or {},
+    }
+    with open(json_path, 'w', encoding='utf-8') as f:
+        json.dump(payload, f, indent=2, ensure_ascii=False)
+
+
 def run_q2_analysis(use_transformer: bool = True) -> None:
     """Run complete Q2 analysis pipeline with triple methodology.
     
@@ -977,6 +1036,8 @@ def run_q2_analysis(use_transformer: bool = True) -> None:
     logger.info("="*60)
     
     model = AutoTradeModel()
+    import_results: Dict = {}
+    transformer_results: Dict = {}
     
     # Step 1: Load data
     panel_data = model.load_q2_data()
@@ -984,7 +1045,7 @@ def run_q2_analysis(use_transformer: bool = True) -> None:
     
     # Step 2: Estimate econometric models
     logger.info("\n[ECONOMETRIC ANALYSIS]")
-    model.estimate_import_structure_model()
+    import_results = model.estimate_import_structure_model() or {}
     model.estimate_industry_transmission_model()
     
     # Step 3: Simulate scenarios (econometric)
@@ -1025,14 +1086,27 @@ def run_q2_analysis(use_transformer: bool = True) -> None:
     # Step 5: Transformer ML enhancement (NEW)
     if use_transformer and tf is not None and panel_data is not None and len(panel_data) >= 20:
         logger.info("\n[TRANSFORMER ML ANALYSIS]")
-        transformer_results = model.train_transformer_model(panel_data)
-        if transformer_results:
-            logger.info(f"Transformer R²: {transformer_results['metrics']['r2']:.3f}")
+        transformer_results = model.train_transformer_model(panel_data) or {}
+        if isinstance(transformer_results, dict) and transformer_results.get('metrics'):
+            try:
+                logger.info(
+                    "Transformer R²: %.3f",
+                    transformer_results['metrics'].get('r2', float('nan')),
+                )
+            except Exception:
+                pass
     elif use_transformer and tf is None:
         logger.warning("TensorFlow not available, skipping Transformer model")
     
     # Step 6: Plot results
     model.plot_q2_results()
+
+    # Step 7: Save comparison of econometric vs Transformer models
+    try:
+        tf_metrics = transformer_results.get('metrics', {}) if isinstance(transformer_results, dict) else {}
+        save_q2_model_comparison(import_results or {}, tf_metrics)
+    except Exception as exc:
+        logger.exception("Failed to save Q2 model comparison: %s", exc)
     
     logger.info("\n" + "="*60)
     logger.info("Q2 analysis complete")

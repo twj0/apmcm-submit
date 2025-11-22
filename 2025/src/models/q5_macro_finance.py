@@ -480,7 +480,9 @@ class MacroFinanceModel:
         
         # Plot 2: IRF (if available)
         try:
-            with open(RESULTS_DIR / 'q5_var_results.json', 'r') as f:
+            # Read VAR results from econometric results directory
+            var_results_path = self.q5_econometric_dir / 'var_results.json'
+            with open(var_results_path, 'r') as f:
                 var_results = json.load(f)
             
             if 'irf_tariff_shock' in var_results:
@@ -888,6 +890,93 @@ class MacroFinanceModel:
         return comparison
 
 
+def save_q5_model_comparison(
+    reg_results: Dict,
+    var_results: Dict,
+    var_lstm_results: Dict,
+    reshoring_ml_results: Dict,
+) -> None:
+    """Persist concise comparison between econometric and ML models for Q5."""
+    output_dir = RESULTS_DIR / 'q5'
+    output_dir.mkdir(parents=True, exist_ok=True)
+    comparison_path = output_dir / 'q5_model_comparison_brief.md'
+    json_path = output_dir / 'q5_model_comparison_brief.json'
+
+    def _fmt(value: Optional[float]) -> str:
+        try:
+            v = float(value)
+        except (TypeError, ValueError):
+            return '-'
+        if np.isnan(v):
+            return '-'
+        return f"{v:.3f}"
+
+    # Aggregate regression R²
+    avg_r2 = None
+    n_reg = 0
+    if isinstance(reg_results, dict) and reg_results:
+        vals = [v.get('rsquared') for v in reg_results.values() if isinstance(v, dict) and 'rsquared' in v]
+        if vals:
+            avg_r2 = float(np.mean(vals))
+            n_reg = len(vals)
+
+    # VAR summary
+    var_r2 = None
+    var_is_stable = None
+    if isinstance(var_results, dict) and var_results:
+        var_is_stable = bool(var_results.get('is_stable')) if 'is_stable' in var_results else None
+        # No explicit R², but keep lag_order and AIC/BIC
+
+    # VAR-LSTM summary
+    var_lstm_rmse = None
+    var_lstm_n = None
+    if isinstance(var_lstm_results, dict) and var_lstm_results:
+        var_lstm_rmse = var_lstm_results.get('rmse')
+        var_lstm_n = var_lstm_results.get('training_samples')
+
+    # Reshoring ML summary (RF/GB)
+    rf_r2 = None
+    gb_r2 = None
+    if isinstance(reshoring_ml_results, dict):
+        models = reshoring_ml_results.get('models', {})
+        rf = models.get('random_forest') if isinstance(models, dict) else None
+        gb = models.get('gradient_boosting') if isinstance(models, dict) else None
+        if isinstance(rf, dict):
+            rf_r2 = rf.get('r2')
+        if isinstance(gb, dict):
+            gb_r2 = gb.get('r2')
+
+    lines = [
+        '# Q5 Econometric vs ML Model Comparison',
+        '',
+        'High-level comparison between traditional econometric models and ML enhancements.',
+        '',
+        '## Summary Table',
+        '',
+        '| Component | Model | Key Metric | Value | Notes |',
+        '|-----------|-------|------------|-------|-------|',
+        f"| Macro relationships | OLS regressions | Avg R² | {_fmt(avg_r2)} | {n_reg} regressions |",
+        f"| Joint dynamics | VAR | Stable | {var_is_stable if var_is_stable is not None else '-'} | lag/order from var_results |",
+        f"| Dynamic residuals | VAR-LSTM | RMSE | {_fmt(var_lstm_rmse)} | samples={var_lstm_n if var_lstm_n is not None else '-'} |",
+        f"| Reshoring | RF | Test R² | {_fmt(rf_r2)} | from reshoring_ml_models.json |",
+        f"| Reshoring | GB | Test R² | {_fmt(gb_r2)} | from reshoring_ml_models.json |",
+    ]
+
+    comparison_path.write_text('\n'.join(lines), encoding='utf-8')
+
+    summary_payload = {
+        'avg_regression_rsquared': float(avg_r2) if avg_r2 is not None else None,
+        'num_regressions': int(n_reg),
+        'var_is_stable': bool(var_is_stable) if var_is_stable is not None else None,
+        'var_lstm_rmse': float(var_lstm_rmse) if var_lstm_rmse is not None else None,
+        'var_lstm_training_samples': int(var_lstm_n) if isinstance(var_lstm_n, (int, float)) else None,
+        'reshoring_rf_r2': float(rf_r2) if rf_r2 is not None else None,
+        'reshoring_gb_r2': float(gb_r2) if gb_r2 is not None else None,
+    }
+    with open(json_path, 'w', encoding='utf-8') as f:
+        json.dump(summary_payload, f, indent=2)
+
+
 def run_q5_analysis() -> None:
     """Run complete Q5 analysis pipeline with VAR+ML hybrid."""
     logger.info("="*60)
@@ -901,14 +990,14 @@ def run_q5_analysis() -> None:
 
     # Step 2: Econometric models
     logger.info("\n--- Econometric Models ---")
-    model.estimate_regression_effects()
-    model.estimate_var_model()
+    reg_results = model.estimate_regression_effects() or {}
+    var_results = model.estimate_var_model() or {}
     model.evaluate_reshoring()
 
     # Step 3: ML hybrid models
     logger.info("\n--- ML Hybrid Models ---")
-    model.train_var_lstm_hybrid()
-    model.train_reshoring_ml()
+    var_lstm_results = model.train_var_lstm_hybrid() or {}
+    reshoring_ml_results = model.train_reshoring_ml() or {}
 
     # Step 3b: PyTorch Transformer (optional, preferred for Transformer part)
     try:
@@ -924,6 +1013,10 @@ def run_q5_analysis() -> None:
     # Step 4: Model comparison
     logger.info("\n--- Model Comparison ---")
     model.generate_model_comparison()
+    try:
+        save_q5_model_comparison(reg_results or {}, var_results or {}, var_lstm_results or {}, reshoring_ml_results or {})
+    except Exception as exc:
+        logger.exception("Failed to save Q5 model comparison: %s", exc)
 
     # Step 5: Plot results
     model.plot_q5_results()
