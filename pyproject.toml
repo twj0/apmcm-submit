@@ -1,0 +1,64 @@
+[project]
+name = "spec"
+version = "0.1.0"
+description = "APMCM 2025 Problem C support environment managed by uv"
+readme = "README.md"
+requires-python = ">=3.11, <3.13"
+
+dependencies = [
+  # NOTE: Torch and related deep learning packages are not managed by uv.
+  # To install them, run:
+  #   uv pip install torch torchvision torchaudio --index-url http://pypi.douban.com/simple/ --extra-index-url https://download.pytorch.org/whl/cu124
+  # These dependencies must be installed manually by the user and are not listed in [project.dependencies].
+  # Core Scientific Computing
+  "numpy",
+  "scipy",
+  "pandas",
+  # Time Series Analysis
+  "statsmodels",
+  "pmdarima",
+  "prophet",
+  # Machine Learning
+  "scikit-learn",
+  "xgboost",
+  "lightgbm",
+  # Optimization
+  "cvxpy",
+  "pulp",
+  # Visualization
+  "matplotlib",
+  "seaborn",
+  "plotly",
+  # Statistical Analysis
+  "pingouin",
+  # Data Processing
+  "openpyxl",
+  "xlrd",
+  # Utilities
+  "tqdm",
+  "joblib",
+  "python-dateutil",
+  # Jupyter (for exploratory analysis)
+  "jupyter",
+  "ipykernel",
+  "nbconvert",
+  # Code Quality
+  "black",
+  "flake8",
+  "mypy",
+  # Testing
+  "pytest",
+  "pytest-cov",
+  # Documentation
+  "sphinx",
+  # Extra generic modeling / templating helpers
+  "sympy",
+  "jinja2",
+  "pywin32>=311",
+  "pyarrow>=22.0.0",
+  "requests>=2.32.5",
+  "beautifulsoup4>=4.14.2",
+  "lxml>=6.0.2",
+  "wbdata>=1.1.0",
+  "tensorflow>=2.20.0",
+]

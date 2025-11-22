@@ -1,0 +1,150 @@
+{
+  "final_us_tariff": 0.0,
+  "final_jp_relocation": 0.0,
+  "final_rewards": {
+    "us": 5.8275862068965605,
+    "jp": 100.0
+  },
+  "convergence_path": [
+    {
+      "iter": 1,
+      "us_action": 0.0,
+      "jp_action": 0.0,
+      "us_reward": 5.8275862068965605,
+      "jp_reward": 100.0
+    },
+    {
+      "iter": 2,
+      "us_action": 0.0,
+      "jp_action": 0.0,
+      "us_reward": 5.8275862068965605,
+      "jp_reward": 100.0
+    },
+    {
+      "iter": 3,
+      "us_action": 0.0,
+      "jp_action": 0.0,
+      "us_reward": 5.8275862068965605,
+      "jp_reward": 100.0
+    },
+    {
+      "iter": 4,
+      "us_action": 0.0,
+      "jp_action": 0.0,
+      "us_reward": 5.8275862068965605,
+      "jp_reward": 100.0
+    },
+    {
+      "iter": 5,
+      "us_action": 0.0,
+      "jp_action": 0.0,
+      "us_reward": 5.8275862068965605,
+      "jp_reward": 100.0
+    },
+    {
+      "iter": 6,
+      "us_action": 0.0,
+      "jp_action": 0.0,
+      "us_reward": 5.8275862068965605,
+      "jp_reward": 100.0
+    },
+    {
+      "iter": 7,
+      "us_action": 0.0,
+      "jp_action": 0.0,
+      "us_reward": 5.8275862068965605,
+      "jp_reward": 100.0
+    },
+    {
+      "iter": 8,
+      "us_action": 0.0,
+      "jp_action": 0.0,
+      "us_reward": 5.8275862068965605,
+      "jp_reward": 100.0
+    },
+    {
+      "iter": 9,
+      "us_action": 0.0,
+      "jp_action": 0.0,
+      "us_reward": 5.8275862068965605,
+      "jp_reward": 100.0
+    },
+    {
+      "iter": 10,
+      "us_action": 0.0,
+      "jp_action": 0.0,
+      "us_reward": 5.8275862068965605,
+      "jp_reward": 100.0
+    },
+    {
+      "iter": 11,
+      "us_action": 0.0,
+      "jp_action": 0.0,
+      "us_reward": 5.8275862068965605,
+      "jp_reward": 100.0
+    },
+    {
+      "iter": 12,
+      "us_action": 0.0,
+      "jp_action": 0.0,
+      "us_reward": 5.8275862068965605,
+      "jp_reward": 100.0
+    },
+    {
+      "iter": 13,
+      "us_action": 0.0,
+      "jp_action": 0.0,
+      "us_reward": 5.8275862068965605,
+      "jp_reward": 100.0
+    },
+    {
+      "iter": 14,
+      "us_action": 0.0,
+      "jp_action": 0.0,
+      "us_reward": 5.8275862068965605,
+      "jp_reward": 100.0
+    },
+    {
+      "iter": 15,
+      "us_action": 0.0,
+      "jp_action": 0.0,
+      "us_reward": 5.8275862068965605,
+      "jp_reward": 100.0
+    },
+    {
+      "iter": 16,
+      "us_action": 0.0,
+      "jp_action": 0.0,
+      "us_reward": 5.8275862068965605,
+      "jp_reward": 100.0
+    },
+    {
+      "iter": 17,
+      "us_action": 0.0,
+      "jp_action": 0.0,
+      "us_reward": 5.8275862068965605,
+      "jp_reward": 100.0
+    },
+    {
+      "iter": 18,
+      "us_action": 0.0,
+      "jp_action": 0.0,
+      "us_reward": 5.8275862068965605,
+      "jp_reward": 100.0
+    },
+    {
+      "iter": 19,
+      "us_action": 0.0,
+      "jp_action": 0.0,
+      "us_reward": 5.8275862068965605,
+      "jp_reward": 100.0
+    },
+    {
+      "iter": 20,
+      "us_action": 0.0,
+      "jp_action": 0.0,
+      "us_reward": 5.8275862068965605,
+      "jp_reward": 100.0
+    }
+  ]
+}

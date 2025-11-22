@@ -1,0 +1,12 @@
+{
+  "baseline": {
+    "econometric_total": 437663822876.73737,
+    "ml_total": 383173092928.832,
+    "difference_pct": -12.45036192156372
+  },
+  "reciprocal_tariff": {
+    "econometric_total": 1147523634280.3208,
+    "ml_total": 424418821274.26373,
+    "difference_pct": -63.01437211439732
+  }
+}

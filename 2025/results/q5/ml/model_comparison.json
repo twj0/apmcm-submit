@@ -1,0 +1,37 @@
+{
+  "econometric_models": {
+    "VAR": {
+      "aic": -4.912494693643806,
+      "bic": -4.307324507655714,
+      "lag_order": 1
+    },
+    "OLS_Regressions": {
+      "num_models": 4,
+      "avg_rsquared": 0.22345296884629667
+    }
+  },
+  "ml_models": {
+    "VAR_LSTM": {
+      "rmse": 0.67096953478059,
+      "training_samples": 7
+    },
+    "Reshoring_ML": {
+      "random_forest": {
+        "rmse": 0.4472466670482285,
+        "mae": 0.4363818367956398,
+        "r2": -1.1951757639536273
+      },
+      "gradient_boosting": {
+        "rmse": 0.3237026954211205,
+        "mae": 0.23861977988380811,
+        "r2": -0.1499202051144648
+      }
+    }
+  },
+  "summary": {
+    "total_econometric_models": 2,
+    "total_ml_models": 2,
+    "hybrid_approach": "VAR + LSTM for impulse responses, RF/GB for reshoring prediction",
+    "recommendation": "Use VAR for interpretability, ML for prediction accuracy"
+  }
+}

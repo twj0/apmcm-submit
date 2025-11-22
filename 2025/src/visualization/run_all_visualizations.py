@@ -22,16 +22,26 @@ def plot_q1():
     fig_dir = FIGURES_DIR / 'q1'
     fig_dir.mkdir(parents=True, exist_ok=True)
 
-    # Scenario exports
     csv_path = RESULTS_DIR / 'q1' / 'q1_scenario_exports.csv'
     if csv_path.exists():
         df = pd.read_csv(csv_path)
-        fig, ax = plt.subplots(figsize=(10, 6))
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+
+        # Import quantity by scenario
         for exp in df['exporter'].unique():
             data = df[df['exporter'] == exp]
-            ax.plot(data['period'], data['import_quantity'], marker='o', label=exp, linewidth=2)
-        ax.set_xlabel('Period'); ax.set_ylabel('Import Quantity'); ax.set_title('Q1: Soybean Import Scenarios')
-        ax.legend(); ax.grid(alpha=0.3)
+            ax1.plot(data['scenario'], data['simulated_import_quantity'], marker='o', label=exp, linewidth=2)
+        ax1.set_xlabel('Scenario'); ax1.set_ylabel('Import Quantity'); ax1.set_title('Q1: Soybean Import Quantity')
+        ax1.legend(); ax1.grid(alpha=0.3); ax1.tick_params(axis='x', rotation=15)
+
+        # Market share
+        for exp in df['exporter'].unique():
+            data = df[df['exporter'] == exp]
+            ax2.plot(data['scenario'], data['market_share'], marker='s', label=exp, linewidth=2)
+        ax2.set_xlabel('Scenario'); ax2.set_ylabel('Market Share (%)'); ax2.set_title('Q1: Market Share by Exporter')
+        ax2.legend(); ax2.grid(alpha=0.3); ax2.tick_params(axis='x', rotation=15)
+
+        plt.tight_layout()
         fig.savefig(fig_dir / 'q1_scenarios.png', dpi=300, bbox_inches='tight')
         plt.close()
 
@@ -59,25 +69,25 @@ def plot_q3():
     fig_dir = FIGURES_DIR / 'q3'
     fig_dir.mkdir(parents=True, exist_ok=True)
 
-    # Policy scenarios
     csv_path = RESULTS_DIR / 'q3_policy_scenarios.csv'
     if csv_path.exists():
         df = pd.read_csv(csv_path)
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
 
-        # Self-sufficiency
-        policies = df['policy'].unique()
-        for pol in policies:
+        # Self-sufficiency by segment
+        for pol in df['policy'].unique():
             data = df[df['policy'] == pol]
-            ax1.plot(data['segment'], data['self_sufficiency_rate'], marker='o', label=pol, linewidth=2)
-        ax1.set_xlabel('Segment'); ax1.set_ylabel('Self-Sufficiency Rate'); ax1.set_title('Q3: Self-Sufficiency by Policy')
-        ax1.legend(); ax1.grid(alpha=0.3)
+            ax1.plot(data['segment'], data['self_sufficiency_pct'], marker='o', label=pol, linewidth=2)
+        ax1.set_xlabel('Segment'); ax1.set_ylabel('Self-Sufficiency (%)'); ax1.set_title('Q3: Self-Sufficiency by Policy')
+        ax1.legend(fontsize=8); ax1.grid(alpha=0.3)
 
-        # Security vs Cost
+        # Security vs Cost tradeoff
         summary = df.groupby('policy').agg({'security_index': 'mean', 'cost_index': 'mean'}).reset_index()
-        ax2.scatter(summary['cost_index'], summary['security_index'], s=200, alpha=0.7)
+        ax2.scatter(summary['cost_index'], summary['security_index'], s=200, alpha=0.7, c=range(len(summary)), cmap='viridis')
         for i, pol in enumerate(summary['policy']):
-            ax2.annotate(pol, (summary['cost_index'].iloc[i], summary['security_index'].iloc[i]))
+            ax2.annotate(pol.replace('Policy_', '').replace('_', ' '),
+                        (summary['cost_index'].iloc[i], summary['security_index'].iloc[i]),
+                        fontsize=8, ha='center')
         ax2.set_xlabel('Cost Index'); ax2.set_ylabel('Security Index'); ax2.set_title('Q3: Security-Cost Tradeoff')
         ax2.grid(alpha=0.3)
 

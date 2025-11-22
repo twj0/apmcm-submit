@@ -1,0 +1,14 @@
+{
+  "high": {
+    "subsidy_elasticity": 9.814189766029151e-16,
+    "tariff_elasticity": 0.0
+  },
+  "mid": {
+    "subsidy_elasticity": 9.814189766029151e-16,
+    "tariff_elasticity": 0.0
+  },
+  "low": {
+    "subsidy_elasticity": 9.814189766029151e-16,
+    "tariff_elasticity": 0.0
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "nash_equilibria": [
+    {
+      "us_tariff": 0.25,
+      "japan_relocation": 1.0,
+      "us_payoff": 4.0625,
+      "japan_payoff": 60.0,
+      "strategy": [
+        "us_index",
+        2,
+        "japan_index",
+        2
+      ]
+    }
+  ],
+  "payoff_matrix": {
+    "us_payoffs": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        1.35,
+        1.6,
+        1.85
+      ],
+      [
+        2.8125,
+        3.4375,
+        4.0625
+      ]
+    ],
+    "japan_payoffs": [
+      [
+        0.0,
+        32.5,
+        60.0
+      ],
+      [
+        -15.0,
+        25.0,
+        60.0
+      ],
+      [
+        -37.5,
+        13.75,
+        60.0
+      ]
+    ],
+    "us_tariff_grid": [
+      0.0,
+      0.1,
+      0.25
+    ],
+    "japan_relocation_grid": [
+      0.0,
+      0.5,
+      1.0
+    ]
+  },
+  "n_equilibria": 1,
+  "analysis": {
+    "status": "Equilibria found",
+    "total_equilibria": 1,
+    "pareto_optimal_count": 1,
+    "pareto_optimal": [
+      {
+        "us_tariff": 0.25,
+        "japan_relocation": 1.0,
+        "us_payoff": 4.0625,
+        "japan_payoff": 60.0,
+        "strategy": [
+          "us_index",
+          2,
+          "japan_index",
+          2
+        ]
+      }
+    ],
+    "recommended_policy": {
+      "us_tariff": 0.25,
+      "japan_relocation": 1.0,
+      "us_payoff": 4.0625,
+      "japan_payoff": 60.0,
+      "strategy": [
+        "us_index",
+        2,
+        "japan_index",
+        2
+      ]
+    }
+  }
+}

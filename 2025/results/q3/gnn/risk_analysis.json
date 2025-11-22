@@ -1,0 +1,135 @@
+{
+  "method": "gnn_supply_chain_analysis",
+  "timestamp": "2025-11-22T11:26:00.947694",
+  "baseline_metrics": {
+    "hhi_concentration": 2150.0,
+    "geopolitical_risk_score": 45.5,
+    "tech_concentration": 0.6666666666666666,
+    "resilience_score": 78.5,
+    "security_index": 57.75,
+    "num_suppliers": 6,
+    "num_high_tech_suppliers": 4
+  },
+  "disruption_scenarios": [
+    {
+      "disrupted_country": "China",
+      "disruption_severity": 0.5,
+      "direct_production_loss_pct": 0.125,
+      "affected_downstream_countries": [
+        "USA"
+      ],
+      "num_affected_countries": 1,
+      "affected_trade_volume": 30.0,
+      "cascading_risk_score": 1.25,
+      "scenario_name": "China_50pct"
+    },
+    {
+      "disrupted_country": "China",
+      "disruption_severity": 0.8,
+      "direct_production_loss_pct": 0.2,
+      "affected_downstream_countries": [
+        "USA"
+      ],
+      "num_affected_countries": 1,
+      "affected_trade_volume": 30.0,
+      "cascading_risk_score": 2.0,
+      "scenario_name": "China_80pct"
+    },
+    {
+      "disrupted_country": "China",
+      "disruption_severity": 1.0,
+      "direct_production_loss_pct": 0.25,
+      "affected_downstream_countries": [
+        "USA"
+      ],
+      "num_affected_countries": 1,
+      "affected_trade_volume": 30.0,
+      "cascading_risk_score": 2.5,
+      "scenario_name": "China_100pct"
+    },
+    {
+      "disrupted_country": "Taiwan",
+      "disruption_severity": 0.5,
+      "direct_production_loss_pct": 0.15,
+      "affected_downstream_countries": [
+        "USA"
+      ],
+      "num_affected_countries": 1,
+      "affected_trade_volume": 50.0,
+      "cascading_risk_score": 1.5,
+      "scenario_name": "Taiwan_50pct"
+    },
+    {
+      "disrupted_country": "Taiwan",
+      "disruption_severity": 0.8,
+      "direct_production_loss_pct": 0.24,
+      "affected_downstream_countries": [
+        "USA"
+      ],
+      "num_affected_countries": 1,
+      "affected_trade_volume": 50.0,
+      "cascading_risk_score": 2.4,
+      "scenario_name": "Taiwan_80pct"
+    },
+    {
+      "disrupted_country": "Taiwan",
+      "disruption_severity": 1.0,
+      "direct_production_loss_pct": 0.3,
+      "affected_downstream_countries": [
+        "USA"
+      ],
+      "num_affected_countries": 1,
+      "affected_trade_volume": 50.0,
+      "cascading_risk_score": 3.0,
+      "scenario_name": "Taiwan_100pct"
+    },
+    {
+      "disrupted_country": "South Korea",
+      "disruption_severity": 0.5,
+      "direct_production_loss_pct": 0.1,
+      "affected_downstream_countries": [
+        "USA"
+      ],
+      "num_affected_countries": 1,
+      "affected_trade_volume": 40.0,
+      "cascading_risk_score": 1.0,
+      "scenario_name": "South Korea_50pct"
+    },
+    {
+      "disrupted_country": "South Korea",
+      "disruption_severity": 0.8,
+      "direct_production_loss_pct": 0.16000000000000003,
+      "affected_downstream_countries": [
+        "USA"
+      ],
+      "num_affected_countries": 1,
+      "affected_trade_volume": 40.0,
+      "cascading_risk_score": 1.6000000000000003,
+      "scenario_name": "South Korea_80pct"
+    },
+    {
+      "disrupted_country": "South Korea",
+      "disruption_severity": 1.0,
+      "direct_production_loss_pct": 0.2,
+      "affected_downstream_countries": [
+        "USA"
+      ],
+      "num_affected_countries": 1,
+      "affected_trade_volume": 40.0,
+      "cascading_risk_score": 2.0,
+      "scenario_name": "South Korea_100pct"
+    }
+  ],
+  "network_structure": {
+    "num_nodes": 6,
+    "num_edges": 5,
+    "node_list": [
+      "China",
+      "Taiwan",
+      "South Korea",
+      "Japan",
+      "EU",
+      "USA"
+    ]
+  }
+}

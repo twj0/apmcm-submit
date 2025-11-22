@@ -1,0 +1,4 @@
+scenario,japan_direct_imports,mexico_production,us_production_japanese,total_japanese_sales,import_penetration
+S0_no_response,600000.0,1000000.0,400000.0,2000000,13.793103448275861
+S1_partial_relocation,300000.0,1000000.0,700000.0,2000000,11.504424778761061
+S2_aggressive_localization,100000.0,900000.0,1000000.0,2000000,9.090909090909092

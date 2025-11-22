@@ -1,0 +1,6 @@
+{
+  "episodes": 200,
+  "steps_per_episode": 8,
+  "final_us_return": 44.7249029295581,
+  "final_jp_return": 758.2006911933422
+}

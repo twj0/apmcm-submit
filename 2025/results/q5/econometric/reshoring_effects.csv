@@ -1,0 +1,2 @@
+pre_treatment_mean,post_treatment_mean,difference,treatment_coef,treatment_pvalue,statistically_significant
+11.50478553745182,10.606938860436085,-0.8978466770157354,-0.7888962699371271,0.42423942791819014,False

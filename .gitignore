@@ -1,0 +1,22 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+*.pkl
+*.keras
+*.h5
+*.pt
+
+
+# Virtual environments
+.venv
+.claude
+2025/data/external/
+2025/problems/2025 APMCM Problem C.md
+2025/problems/Tariff Data/
+2025/src/models/fixes/
+IFLOW.md
+CLAUDE.md

@@ -1,0 +1,10 @@
+{
+  "rsquared": NaN,
+  "nobs": 5,
+  "params": {
+    "Intercept": 0.0,
+    "import_penetration": 0.0,
+    "us_gdp_billions": 0.0,
+    "fuel_price_index": 0.0
+  }
+}

@@ -1,0 +1,10 @@
+disrupted_country,disruption_severity,direct_production_loss_pct,affected_downstream_countries,num_affected_countries,affected_trade_volume,cascading_risk_score,scenario_name
+China,0.5,0.125,['USA'],1,30.0,1.25,China_50pct
+China,0.8,0.2,['USA'],1,30.0,2.0,China_80pct
+China,1.0,0.25,['USA'],1,30.0,2.5,China_100pct
+Taiwan,0.5,0.15,['USA'],1,50.0,1.5,Taiwan_50pct
+Taiwan,0.8,0.24,['USA'],1,50.0,2.4,Taiwan_80pct
+Taiwan,1.0,0.3,['USA'],1,50.0,3.0,Taiwan_100pct
+South Korea,0.5,0.1,['USA'],1,40.0,1.0,South Korea_50pct
+South Korea,0.8,0.16000000000000003,['USA'],1,40.0,1.6000000000000003,South Korea_80pct
+South Korea,1.0,0.2,['USA'],1,40.0,2.0,South Korea_100pct
